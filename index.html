@@ -53,8 +53,10 @@
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        // 建議 appId 與您的 Project ID 保持一致或自訂一個唯一值
         const appId = 'turn-cards-game'; 
+
+        // 預設佔位圖，當使用者輸入無效網址時顯示
+        const PLACEHOLDER_IMG = "https://via.placeholder.com/400x300?text=Image+Not+Found";
 
         // --- 圖標組件 ---
         const Icon = ({ name, size = 24, className = "" }) => {
@@ -91,7 +93,6 @@
             useEffect(() => {
                 const initAuth = async () => {
                     try {
-                        // 生產模式建議搭配匿名登入或自訂 Token
                         await auth.signInAnonymously();
                     } catch (err) {
                         console.error("Auth Error:", err.message);
@@ -105,14 +106,13 @@
             // 2. 即時同步資料庫
             useEffect(() => {
                 if (!user) return;
-                // 資料路徑：artifacts / {appId} / public / data / deviceCards
                 const collectionRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
                 
                 const unsubscribe = collectionRef.onSnapshot((snapshot) => {
                     const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     setCardsData(data);
                 }, (err) => {
-                    console.error("Firestore Error (可能需要檢查規則):", err.message);
+                    console.error("Firestore Error:", err.message);
                 });
                 return () => unsubscribe();
             }, [user]);
@@ -257,7 +257,21 @@
                                     <h2 className="text-xl font-bold mb-6 text-indigo-600">{editingId ? '編輯設備資料' : '新增學習設備'}</h2>
                                     <form onSubmit={handleSubmit} className="space-y-4">
                                         <input value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full p-4 rounded-xl bg-slate-50 border outline-none focus:ring-2 ring-indigo-500" placeholder="設備名稱 (例如: MRI 儀器)" />
-                                        <input value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} className="w-full p-4 rounded-xl bg-slate-50 border outline-none focus:ring-2 ring-indigo-500" placeholder="圖片網址 (URL)" />
+                                        <div className="space-y-2">
+                                            <input value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} className="w-full p-4 rounded-xl bg-slate-50 border outline-none focus:ring-2 ring-indigo-500" placeholder="圖片網址 (URL)" />
+                                            {newItem.image && (
+                                                <div className="mt-2 p-2 bg-slate-100 rounded-xl border border-dashed border-slate-300">
+                                                    <p className="text-xs text-slate-400 mb-1 font-bold uppercase">圖片即時預覽：</p>
+                                                    <img 
+                                                        src={newItem.image} 
+                                                        className="max-h-32 rounded-lg mx-auto" 
+                                                        onError={(e) => { e.target.src = PLACEHOLDER_IMG; }} 
+                                                        alt="預覽圖"
+                                                    />
+                                                    <p className="text-[10px] text-rose-500 mt-1">※ 若預覽顯示為 Placeholder，表示網址可能無效或非直連連結。</p>
+                                                </div>
+                                            )}
+                                        </div>
                                         <textarea value={newItem.info} onChange={e => setNewItem({...newItem, info: e.target.value})} className="w-full p-4 rounded-xl bg-slate-50 border outline-none h-32 focus:ring-2 ring-indigo-500" placeholder="設備詳細介紹與用途..." />
                                         <div className="p-4 bg-indigo-50 rounded-2xl">
                                             <p className="font-bold text-sm mb-2 text-indigo-700">測驗題目與選項</p>
@@ -272,7 +286,7 @@
                                                 </div>
                                             ))}
                                         </div>
-                                        <button disabled={loading} type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-colors">
+                                        <button disabled={loading} type="submit" className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-indigo-700 transition-colors">
                                             {loading ? '處理中...' : (editingId ? '儲存修改內容' : '確認新增資料')}
                                         </button>
                                         {editingId && <button onClick={() => {setEditingId(null); setNewItem({name:'',image:'',info:'',question:'請問下列哪一項是關於 {name} 的正確描述？',options:['','','',''],correct:0})}} type="button" className="w-full bg-slate-200 py-3 rounded-xl mt-2 font-medium">取消編輯</button>}
@@ -286,7 +300,11 @@
                                     <div className="max-h-[700px] overflow-y-auto space-y-4 pr-2">
                                         {cardsData.map(item => (
                                             <div key={item.id} className="bg-white p-4 rounded-2xl flex items-center gap-4 border shadow-sm group hover:border-indigo-300 transition-all">
-                                                <img src={item.image} className="w-20 h-20 rounded-xl object-cover bg-slate-100 flex-shrink-0" />
+                                                <img 
+                                                    src={item.image} 
+                                                    className="w-20 h-20 rounded-xl object-cover bg-slate-100 flex-shrink-0" 
+                                                    onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                                                />
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-bold text-slate-800 truncate">{item.name}</h4>
                                                     <div className="flex gap-4 mt-2">
@@ -321,8 +339,12 @@
                                 return (
                                     <div key={card.instanceId} onClick={() => handleCardClick(idx)} className={`relative cursor-pointer transition-all duration-500 preserve-3d h-full ${isFlipped ? 'rotate-y-180' : ''}`}>
                                         <div className="absolute inset-0 backface-hidden bg-indigo-700 rounded-xl flex items-center justify-center border-2 border-indigo-500"><span className="text-white text-3xl font-black opacity-10">?</span></div>
-                                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-xl overflow-hidden border-2 border-indigo-400">
-                                            <img src={card.image} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-slate-200 rounded-xl overflow-hidden border-2 border-indigo-400">
+                                            <img 
+                                                src={card.image} 
+                                                className="w-full h-full object-cover" 
+                                                onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                                            />
                                         </div>
                                     </div>
                                 );
@@ -331,7 +353,11 @@
                         {gameState.currentMatchInfo && (
                             <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
                                 <div className="bg-white rounded-[2rem] max-w-md w-full overflow-hidden shadow-2xl text-center animate-in zoom-in duration-300">
-                                    <img src={gameState.currentMatchInfo.image} className="h-52 w-full object-cover" />
+                                    <img 
+                                        src={gameState.currentMatchInfo.image} 
+                                        className="h-52 w-full object-cover" 
+                                        onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                                    />
                                     <div className="p-8">
                                         <span className="text-emerald-500 text-xs font-bold uppercase tracking-widest block mb-2">配對成功！</span>
                                         <h3 className="text-2xl font-bold mb-3">{gameState.currentMatchInfo.name}</h3>
