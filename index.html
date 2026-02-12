@@ -134,7 +134,7 @@
                         setCardsData(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
                     }, 
                     err => {
-                        console.error("Firestore 讀取卡片失敗 (請檢查 Security Rules):", err.message);
+                        console.error("Firestore 讀取卡片失敗:", err.message);
                     }
                 );
 
@@ -149,7 +149,7 @@
                         setLeaderboard(sorted);
                     },
                     err => {
-                        console.error("Firestore 讀取排行榜失敗 (請檢查 Security Rules):", err.message);
+                        console.error("Firestore 讀取排行榜失敗:", err.message);
                     }
                 );
 
@@ -167,7 +167,7 @@
                 let pairsCount = diff === 'easy' ? 8 : (diff === 'medium' ? 12 : 18);
                 
                 if (cardsData.length < pairsCount) {
-                    alert(`設備資料不足！目前只有 ${cardsData.length} 種，請由管理後台新增（至少需 ${pairsCount} 種）。`);
+                    alert(`設備資料不足！目前只有 ${cardsData.length} 種，請由管理後台新增。`);
                     return;
                 }
 
@@ -259,7 +259,7 @@
                             timestamp: Date.now()
                         });
                     } catch (e) { 
-                        console.error("排行榜存檔失敗 (請檢查 Rules):", e.message); 
+                        console.error("排行榜存檔失敗:", e.message); 
                     }
                 }
             };
@@ -273,11 +273,10 @@
                             <div className="inline-flex p-4 bg-[#2D2D2D] rounded-full text-white mb-4 animate-bounce">
                                 <Icon name="gamepad-2" size={48} />
                             </div>
-                            <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic">設備對對碰</h1>
+                            <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic uppercase">設備對對碰</h1>
                             <p className="text-[#2D2D2D] font-bold mt-3 text-lg uppercase tracking-widest">Challenge Mode</p>
                         </div>
 
-                        {/* 參賽者輸入 - 已修正字體與中文輸入法問題 */}
                         <div className="mb-8 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC]">
                             <label className="block text-xs font-black text-[#2D2D2D] mb-2 uppercase tracking-tighter">Enter Player Name</label>
                             <input 
@@ -327,7 +326,11 @@
                             </div>
                         </div>
 
-                        <button onClick={() => setView('admin_login')} className="mt-8 text-white/20 hover:text-white/60 flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase">
+                        {/* 修正後的後台進入按鈕 - 調整顏色為可見的灰色，hover 變紅 */}
+                        <button 
+                            onClick={() => setView('admin_login')} 
+                            className="mt-10 text-slate-400 hover:text-[#E60012] flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase tracking-widest"
+                        >
                             <Icon name="cog" size={12} /> Console Settings
                         </button>
                     </div>
