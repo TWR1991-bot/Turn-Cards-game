@@ -54,7 +54,7 @@
         const { useState, useEffect, useRef } = React;
 
         // ==========================================
-        // Firebase 設定區 (確認與您的 Console 資訊一致)
+        // Firebase 設定區
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAmCOliFc1-qMDVgCGzD33gDCKF8KT1fIo",
@@ -72,10 +72,290 @@
 
         const PLACEHOLDER_IMG = "https://via.placeholder.com/400x300?text=Image+Not+Found";
 
+        // --- 子組件定義 (移出 App 外部以解決輸入焦點問題) ---
+
         const Icon = ({ name, size = 24, className = "" }) => {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`}></i>;
         };
+
+        const MainMenu = ({ playerName, setPlayerName, startGame, leaderboard, setView }) => (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-6 bg-[#E60012]">
+                <div className="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-2xl max-w-lg w-full border-[6px] border-[#2D2D2D]">
+                    <div className="text-center mb-8">
+                        <div className="inline-flex p-4 bg-[#2D2D2D] rounded-full text-white mb-4 animate-bounce">
+                            <Icon name="gamepad-2" size={48} />
+                        </div>
+                        <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic">設備對對碰</h1>
+                        <p className="text-[#2D2D2D] font-bold mt-3 text-lg uppercase tracking-widest">Challenge Mode</p>
+                    </div>
+
+                    <div className="mb-8 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC]">
+                        <label className="block text-xs font-black text-[#2D2D2D] mb-2 uppercase tracking-tighter">Enter Player Name</label>
+                        <input 
+                            type="text" 
+                            value={playerName} 
+                            onChange={e => setPlayerName(e.target.value)}
+                            className="w-full p-4 bg-white border-4 border-[#2D2D2D] rounded-2xl outline-none transition-all text-xl font-bold placeholder:text-slate-300"
+                            placeholder="輸入名稱 (記錄排行)"
+                            autoComplete="off"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 mb-8">
+                        <button onClick={() => startGame('easy')} className="flex items-center justify-between p-5 nintendo-green text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
+                            <span className="font-black text-2xl italic">EASY (4x4)</span>
+                            <Icon name="play-circle" />
+                        </button>
+                        <button onClick={() => startGame('medium')} className="flex items-center justify-between p-5 nintendo-blue text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
+                            <span className="font-black text-2xl italic">MEDIUM (5x5)</span>
+                            <Icon name="play-circle" />
+                        </button>
+                        <button onClick={() => startGame('hard')} className="flex items-center justify-between p-5 nintendo-red text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
+                            <span className="font-black text-2xl italic">HARD (6x6)</span>
+                            <Icon name="play-circle" />
+                        </button>
+                    </div>
+
+                    <div className="bg-[#2D2D2D] rounded-3xl p-6 text-white">
+                        <h3 className="text-center font-black nintendo-yellow text-[#2D2D2D] inline-block px-4 py-1 rounded-full text-xs mb-4 mx-auto w-full uppercase tracking-widest">Global Ranking</h3>
+                        <div className="space-y-3">
+                            {leaderboard.map((item, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-xs font-black ${i === 0 ? 'bg-[#FFD900] text-[#2D2D2D]' : 'bg-white/20 text-white'}`}>{i+1}</span>
+                                        <span className="font-black truncate w-24 md:w-32">{item.name}</span>
+                                        <span className={`text-[10px] px-2 py-0.5 rounded font-black uppercase ${item.mode === 'hard' ? 'bg-rose-500' : (item.mode === 'medium' ? 'bg-blue-500' : 'bg-emerald-500')}`}>{item.mode}</span>
+                                    </div>
+                                    <span className="font-black text-[#FFD900]">{item.score.toLocaleString()}</span>
+                                </div>
+                            ))}
+                            {leaderboard.length === 0 && <p className="text-center text-white/30 text-xs py-4">Waiting for players...</p>}
+                        </div>
+                    </div>
+
+                    <button onClick={() => setView('admin_login')} className="mt-8 text-slate-400 hover:text-[#E60012] flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase tracking-widest">
+                        <Icon name="cog" size={12} /> Console Settings
+                    </button>
+                </div>
+            </div>
+        );
+
+        const GameBoard = ({ difficulty, playerName, setView, gameState, setGameState, handleCardClick, flipCount, startQuiz }) => {
+            const gridCols = difficulty === 'easy' ? 'grid-cols-4' : (difficulty === 'medium' ? 'grid-cols-5' : 'grid-cols-6');
+            const isGameDone = gameState.matched.length === (difficulty === 'medium' ? 24 : (difficulty === 'easy' ? 16 : 36));
+            return (
+                <div className="min-h-screen bg-[#2D2D2D] p-4 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-2xl flex justify-between items-end mb-6 text-white pt-4">
+                        <div className="flex flex-col">
+                            <span className="text-xs font-black uppercase text-[#E60012]">Player: {playerName || "Guest"}</span>
+                            <button onClick={() => setView('menu')} className="bg-[#E60012] text-white px-3 py-1 rounded-full text-xs font-black mt-1 hover:bg-[#FF1A1A]">HOME</button>
+                        </div>
+                        <div className="text-center">
+                            <span className="text-[10px] font-black uppercase block text-white/40 mb-1 tracking-tighter">Matching Progress</span>
+                            <h2 className="text-3xl font-black italic">{gameState.matched.length / 2} <span className="text-[#E60012]">/</span> {difficulty === 'easy' ? 8 : (difficulty === 'medium' ? 12 : 18)}</h2>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-white/40 uppercase block mb-1">Turns</span>
+                            <span className="text-2xl font-black text-nintendo-yellow">{flipCount}</span>
+                        </div>
+                    </div>
+
+                    <div className={`grid ${gridCols} gap-2 md:gap-4 w-full max-w-2xl aspect-square`}>
+                        {gameState.cards.map((card, idx) => {
+                            if (card.isSpacer) return (
+                                <div key="spacer" className="bg-[#1A1A1A] rounded-2xl flex items-center justify-center text-[#E60012] border-4 border-[#2D2D2D]">
+                                    <Icon name="disc" size={32} className="animate-spin" />
+                                </div>
+                            );
+                            const isFlipped = gameState.flipped.includes(idx) || gameState.matched.includes(idx);
+                            return (
+                                <div key={card.instanceId} onClick={() => handleCardClick(idx)} className={`relative cursor-pointer transition-all duration-500 preserve-3d h-full ${isFlipped ? 'rotate-y-180' : ''}`}>
+                                    <div className="absolute inset-0 backface-hidden bg-[#E60012] rounded-2xl flex items-center justify-center border-4 border-[#FF1A1A] shadow-lg">
+                                        <div className="w-12 h-12 rounded-full border-4 border-white/20 flex items-center justify-center">
+                                            <div className="w-4 h-4 bg-white/20 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-2xl overflow-hidden border-4 border-[#FFF] shadow-xl">
+                                        <img src={card.image} className="w-full h-full object-cover" onError={e => e.target.src = PLACEHOLDER_IMG} />
+                                        {gameState.matched.includes(idx) && (
+                                            <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                                                <div className="bg-[#43B02A] text-white rounded-full p-2 shadow-lg scale-110 animate-pulse">
+                                                    <Icon name="check" size={24} />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {gameState.currentMatchInfo && (
+                        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50 backdrop-blur-md">
+                            <div className="bg-white rounded-[3rem] max-w-md w-full overflow-hidden shadow-2xl text-center animate-in zoom-in duration-300 border-[8px] border-[#2D2D2D]">
+                                <div className="relative h-56 w-full">
+                                    <img src={gameState.currentMatchInfo.image} className="h-full w-full object-cover" onError={e => e.target.src = PLACEHOLDER_IMG} />
+                                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-white to-transparent opacity-60"></div>
+                                </div>
+                                <div className="p-8">
+                                    <span className="bg-[#43B02A] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-2 inline-block">Excellent!</span>
+                                    <h3 className="text-3xl font-black mb-4 text-[#E60012] italic">{gameState.currentMatchInfo.name}</h3>
+                                    <p className="text-[#2D2D2D] font-bold mb-8 leading-relaxed">{gameState.currentMatchInfo.info}</p>
+                                    <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000]">CONTINUE</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {isGameDone && !gameState.currentMatchInfo && (
+                        <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all">
+                            START QUIZ!
+                        </button>
+                    )}
+                </div>
+            );
+        };
+
+        const QuizView = ({ quizState, submitQuizAnswer }) => {
+            const q = quizState.questions[quizState.currentIndex];
+            if(!q) return null;
+            return (
+                <div className="min-h-screen bg-[#00A2E8] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[3rem] shadow-2xl max-w-xl w-full p-8 md:p-12 relative overflow-hidden border-[8px] border-[#2D2D2D]">
+                        <div className="absolute top-0 left-0 h-4 bg-[#FFD900] transition-all duration-500" style={{ width: `${(quizState.currentIndex / 5) * 100}%` }}></div>
+                        <div className="flex justify-between items-center mb-10">
+                            <span className="bg-[#2D2D2D] text-white px-5 py-1.5 rounded-full text-sm font-black italic">Q {quizState.currentIndex+1} / 5</span>
+                            <span className="text-[#E60012] font-black flex items-center gap-2 animate-pulse"><Icon name="timer" size={18} /> SPEED BONUS ACTIVE</span>
+                        </div>
+                        <h2 className="text-3xl font-black mb-12 text-[#2D2D2D] leading-tight italic uppercase tracking-tighter">
+                            {q.question.replace('{name}', q.deviceName)}
+                        </h2>
+                        <div className="space-y-4">
+                            {q.options.map((opt, i) => (
+                                <button key={i} onClick={() => submitQuizAnswer(i)} className="w-full text-left p-6 rounded-3xl border-4 border-[#F0F0F0] hover:border-[#E60012] hover:bg-[#E60012] hover:text-white font-black transition-all text-xl flex items-center justify-between group btn-push shadow-md">
+                                    <span>{opt}</span>
+                                    <div className="w-8 h-8 rounded-full bg-[#F0F0F0] group-hover:bg-white flex items-center justify-center text-[#2D2D2D] font-black text-sm">
+                                        {String.fromCharCode(65 + i)}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ResultView = ({ finalScore, flipCount, quizState, setView }) => (
+            <div className="min-h-screen bg-[#E60012] flex flex-col items-center justify-center p-6 text-center">
+                <div className="bg-white rounded-[4rem] shadow-2xl max-w-md w-full p-12 relative border-[10px] border-[#2D2D2D]">
+                    <div className="bg-[#FFD900] w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 text-[#2D2D2D] rotate-12 shadow-xl border-8 border-white"><Icon name="star" size={64} /></div>
+                    <h2 className="text-5xl font-black mb-2 text-[#E60012] italic tracking-tighter">GAME OVER!</h2>
+                    <p className="text-[#2D2D2D] font-black mb-8 uppercase tracking-widest text-sm opacity-50">Score Summary</p>
+                    
+                    <div className="mb-10">
+                        <div className="text-[100px] leading-none font-black text-[#2D2D2D] drop-shadow-lg tracking-tighter">{finalScore.toLocaleString()}</div>
+                        <p className="text-[#E60012] font-black text-xl uppercase tracking-widest mt-2">Points</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-12">
+                        <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
+                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Turns Taken</span>
+                            <span className="font-black text-2xl text-[#E60012]">{flipCount}</span>
+                        </div>
+                        <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
+                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Quiz Accuracy</span>
+                            <span className="font-black text-2xl text-[#43B02A]">{quizState.score} / 5</span>
+                        </div>
+                    </div>
+
+                    <button onClick={() => setView('menu')} className="w-full bg-[#2D2D2D] text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-[#000] transition-all text-2xl btn-push italic">NEW CHALLENGE</button>
+                </div>
+            </div>
+        );
+
+        const AdminLogin = ({ setView }) => {
+            const [creds, setCreds] = useState({ user: '', pass: '' });
+            return (
+                <div className="min-h-screen flex items-center justify-center p-6 bg-[#2D2D2D]">
+                    <form onSubmit={(e) => { e.preventDefault(); if(creds.user==='Admin01' && creds.pass==='76380260') setView('admin'); else alert('Access Denied'); }} className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center border-[6px] border-[#E60012]">
+                        <h2 className="text-3xl font-black mb-8 text-[#E60012] italic">SYSTEM CONFIG</h2>
+                        <div className="space-y-4">
+                            <input type="text" placeholder="ADMIN ID" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, user: e.target.value})} />
+                            <input type="password" placeholder="PASSWORD" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, pass: e.target.value})} />
+                            <button className="w-full bg-[#E60012] text-white py-4 rounded-2xl font-black btn-push">LOGIN</button>
+                            <button type="button" onClick={()=>setView('menu')} className="text-slate-400 font-bold pt-4 hover:text-[#E60012]">CANCEL</button>
+                        </div>
+                    </form>
+                </div>
+            );
+        };
+
+        const AdminView = ({ cardsData, db, appId, setView }) => {
+            const [newItem, setNewItem] = useState({ name:'', image:'', info:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
+            const [editingId, setEditingId] = useState(null);
+            const colRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
+
+            const save = async (e) => {
+                e.preventDefault();
+                if(editingId) await colRef.doc(editingId).update(newItem);
+                else await colRef.add(newItem);
+                setNewItem({ name:'', image:'', info:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
+                setEditingId(null);
+            };
+
+            const handleGit = (val) => {
+                let u = val;
+                if(u.includes('github.com') && u.includes('/blob/')) u = u.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+                setNewItem({...newItem, image: u});
+            };
+
+            return (
+                <div className="p-8 max-w-6xl mx-auto min-h-screen">
+                    <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg">
+                        <h1 className="text-3xl font-black italic text-[#E60012]">CONSOLE MANAGER</h1>
+                        <button onClick={()=>setView('menu')} className="bg-[#2D2D2D] text-white px-6 py-2 rounded-xl font-black hover:bg-[#000]">EXIT</button>
+                    </div>
+                    <div className="grid lg:grid-cols-2 gap-8">
+                        <form onSubmit={save} className="bg-white p-8 rounded-[2.5rem] border-4 border-[#2D2D2D] space-y-4 shadow-xl">
+                            <label className="text-xs font-black text-slate-400 uppercase">Device Info</label>
+                            <input value={newItem.name} placeholder="DEVICE NAME" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold" onChange={e=>setNewItem({...newItem, name: e.target.value})} />
+                            <input value={newItem.image} placeholder="GITHUB IMAGE URL" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold text-xs" onChange={e=>handleGit(e.target.value)} />
+                            <textarea value={newItem.info} placeholder="DETAILED DESCRIPTION" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none h-32 font-bold" onChange={e=>setNewItem({...newItem, info: e.target.value})} />
+                            <div className="p-6 bg-[#2D2D2D] rounded-3xl text-white">
+                                <p className="font-black text-xs mb-3 text-nintendo-yellow uppercase tracking-widest">Quiz Parameters</p>
+                                <input value={newItem.question} className="w-full p-3 mb-4 rounded-xl border-none bg-white/10 outline-none focus:bg-white/20 font-bold" onChange={e=>setNewItem({...newItem, question: e.target.value})} />
+                                {newItem.options.map((o,i)=>(
+                                    <div key={i} className="flex gap-3 mb-3 items-center">
+                                        <input type="radio" checked={newItem.correct===i} onChange={()=>setNewItem({...newItem, correct: i})} className="accent-nintendo-yellow" />
+                                        <input value={o} className="flex-1 p-3 rounded-xl border-none bg-white/10 outline-none text-sm font-bold" placeholder={`Option ${i+1}`} onChange={e=>{
+                                            const ns = [...newItem.options]; ns[i]=e.target.value; setNewItem({...newItem, options: ns});
+                                        }} />
+                                    </div>
+                                ))}
+                            </div>
+                            <button className="w-full bg-[#E60012] text-white py-5 rounded-3xl font-black text-xl btn-push shadow-lg">{editingId ? 'UPDATE CONTENT' : 'ADD NEW DATA'}</button>
+                        </form>
+                        <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2">
+                            {cardsData.map(item=>(
+                                <div key={item.id} className="p-5 bg-white border-4 border-[#2D2D2D] rounded-3xl flex items-center gap-5 shadow-lg group hover:bg-[#F0F0F0] transition-colors">
+                                    <img src={item.image} className="w-20 h-20 rounded-2xl object-cover border-4 border-[#2D2D2D]" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-black text-xl italic text-[#2D2D2D] truncate uppercase">{item.name}</p>
+                                        <div className="flex gap-4 mt-3">
+                                            <button onClick={()=>{setEditingId(item.id); setNewItem({...item})}} className="bg-indigo-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:bg-indigo-600 transition-colors uppercase">Edit</button>
+                                            <button onClick={()=> {if(confirm('Delete?')) colRef.doc(item.id).delete()}} className="bg-rose-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:bg-rose-600 transition-colors uppercase">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {cardsData.length === 0 && <p className="text-center py-20 text-slate-300 font-bold italic uppercase">Storage is empty</p>}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 主應用組件 ---
 
         function App() {
             const [user, setUser] = useState(null);
@@ -84,7 +364,6 @@
             const [leaderboard, setLeaderboard] = useState([]);
             const [playerName, setPlayerName] = useState("");
             const [difficulty, setDifficulty] = useState(null);
-            const [authLoading, setAuthLoading] = useState(true);
             
             // 遊戲過程紀錄
             const [flipCount, setFlipCount] = useState(0);
@@ -107,61 +386,42 @@
 
             const [finalScore, setFinalScore] = useState(0);
 
-            // 1. 初始化登入
+            // 1. 初始化登入與資料監聽
             useEffect(() => {
                 const init = async () => {
                     try {
                         await auth.signInAnonymously();
-                        setAuthLoading(false);
-                    } catch (err) { 
-                        console.error("Firebase 登入失敗:", err.message); 
-                        setAuthLoading(false);
-                    }
+                    } catch (err) { console.error("Auth Error:", err); }
                 };
                 init();
                 const unsubscribeAuth = auth.onAuthStateChanged(setUser);
                 return () => unsubscribeAuth();
             }, []);
 
-            // 2. 資料監聽 (僅在登入後觸啟)
             useEffect(() => {
                 if (!user) return;
                 
                 // 監聽卡片資料
                 const cardsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
-                const unsubCards = cardsRef.onSnapshot(
-                    snap => {
-                        setCardsData(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-                    }, 
-                    err => {
-                        console.error("Firestore 讀取卡片失敗:", err.message);
-                    }
-                );
+                const unsubCards = cardsRef.onSnapshot(snap => {
+                    setCardsData(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                });
 
                 // 監聽排行榜
                 const lbRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('leaderboard');
-                const unsubLb = lbRef.onSnapshot(
-                    snap => {
-                        const sorted = snap.docs
-                            .map(doc => doc.data())
-                            .sort((a, b) => b.score - a.score)
-                            .slice(0, 5);
-                        setLeaderboard(sorted);
-                    },
-                    err => {
-                        console.error("Firestore 讀取排行榜失敗:", err.message);
-                    }
-                );
+                const unsubLb = lbRef.onSnapshot(snap => {
+                    const sorted = snap.docs
+                        .map(doc => doc.data())
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 5);
+                    setLeaderboard(sorted);
+                });
 
                 return () => { unsubCards(); unsubLb(); };
             }, [user]);
 
-            // --- 邏輯功能 ---
+            // --- 遊戲邏輯函數 ---
             const startGame = (diff) => {
-                if (!user) {
-                    alert("正在連接伺服器，請稍候...");
-                    return;
-                }
                 setDifficulty(diff);
                 setFlipCount(0);
                 let pairsCount = diff === 'easy' ? 8 : (diff === 'medium' ? 12 : 18);
@@ -250,7 +510,7 @@
                 setQuizState(prev => ({ ...prev, score: quizScore, results }));
                 setView('result');
 
-                if (playerName.trim() && user) {
+                if (playerName.trim()) {
                     try {
                         await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('leaderboard').add({
                             name: playerName,
@@ -258,309 +518,60 @@
                             mode: difficulty,
                             timestamp: Date.now()
                         });
-                    } catch (e) { 
-                        console.error("排行榜存檔失敗:", e.message); 
-                    }
+                    } catch (e) { console.error("Leaderboard Save Error", e); }
                 }
-            };
-
-            // --- 視圖組件 ---
-
-            const MainMenu = () => (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-6 bg-[#E60012]">
-                    <div className="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-2xl max-w-lg w-full border-[6px] border-[#2D2D2D]">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex p-4 bg-[#2D2D2D] rounded-full text-white mb-4 animate-bounce">
-                                <Icon name="gamepad-2" size={48} />
-                            </div>
-                            <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic uppercase">設備對對碰</h1>
-                            <p className="text-[#2D2D2D] font-bold mt-3 text-lg uppercase tracking-widest">Challenge Mode</p>
-                        </div>
-
-                        <div className="mb-8 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC]">
-                            <label className="block text-xs font-black text-[#2D2D2D] mb-2 uppercase tracking-tighter">Enter Player Name</label>
-                            <input 
-                                type="text" 
-                                value={playerName} 
-                                onChange={e => setPlayerName(e.target.value)}
-                                className="w-full p-4 bg-white border-4 border-[#2D2D2D] rounded-2xl outline-none transition-all text-xl font-bold placeholder:text-slate-300"
-                                placeholder="輸入名稱 (記錄排行)"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4 mb-8">
-                            <button onClick={() => startGame('easy')} className="flex items-center justify-between p-5 nintendo-green text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                                <span className="font-black text-2xl italic uppercase">Easy (4x4)</span>
-                                <Icon name="play-circle" />
-                            </button>
-                            <button onClick={() => startGame('medium')} className="flex items-center justify-between p-5 nintendo-blue text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                                <span className="font-black text-2xl italic uppercase">Medium (5x5)</span>
-                                <Icon name="play-circle" />
-                            </button>
-                            <button onClick={() => startGame('hard')} className="flex items-center justify-between p-5 nintendo-red text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                                <span className="font-black text-2xl italic uppercase">Hard (6x6)</span>
-                                <Icon name="play-circle" />
-                            </button>
-                        </div>
-
-                        {/* 排行榜預覽 */}
-                        <div className="bg-[#2D2D2D] rounded-3xl p-6 text-white">
-                            <h3 className="text-center font-black nintendo-yellow text-[#2D2D2D] inline-block px-4 py-1 rounded-full text-xs mb-4 mx-auto w-full uppercase tracking-widest">Global Ranking</h3>
-                            <div className="space-y-3">
-                                {leaderboard.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-xs font-black ${i === 0 ? 'bg-[#FFD900] text-[#2D2D2D]' : 'bg-white/20 text-white'}`}>{i+1}</span>
-                                            <span className="font-bold truncate w-24 md:w-32">{item.name}</span>
-                                            <span className={`text-[10px] px-2 py-0.5 rounded font-black uppercase ${item.mode === 'hard' ? 'bg-rose-500' : (item.mode === 'medium' ? 'bg-blue-500' : 'bg-emerald-500')}`}>{item.mode}</span>
-                                        </div>
-                                        <span className="font-black text-[#FFD900]">{item.score.toLocaleString()}</span>
-                                    </div>
-                                ))}
-                                {leaderboard.length === 0 && (
-                                    <div className="text-center text-white/30 text-xs py-4 flex flex-col items-center gap-2">
-                                        <Icon name="loader-2" size={16} className="animate-spin" />
-                                        <span>正在讀取排行榜...</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 修正後的後台進入按鈕 - 調整顏色為可見的灰色，hover 變紅 */}
-                        <button 
-                            onClick={() => setView('admin_login')} 
-                            className="mt-10 text-slate-400 hover:text-[#E60012] flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase tracking-widest"
-                        >
-                            <Icon name="cog" size={12} /> Console Settings
-                        </button>
-                    </div>
-                </div>
-            );
-
-            const GameBoard = () => {
-                const gridCols = difficulty === 'easy' ? 'grid-cols-4' : (difficulty === 'medium' ? 'grid-cols-5' : 'grid-cols-6');
-                const isGameDone = gameState.matched.length === (difficulty === 'medium' ? 24 : (difficulty === 'easy' ? 16 : 36));
-                return (
-                    <div className="min-h-screen bg-[#2D2D2D] p-4 flex flex-col items-center justify-center">
-                        <div className="w-full max-w-2xl flex justify-between items-end mb-6 text-white pt-4">
-                            <div className="flex flex-col">
-                                <span className="text-xs font-black uppercase text-[#E60012]">Player 1</span>
-                                <button onClick={() => setView('menu')} className="bg-[#E60012] text-white px-3 py-1 rounded-full text-xs font-black mt-1 hover:bg-[#FF1A1A]">HOME</button>
-                            </div>
-                            <div className="text-center">
-                                <span className="text-[10px] font-black uppercase block text-white/40 mb-1 tracking-tighter">Matching Progress</span>
-                                <h2 className="text-3xl font-black italic">{gameState.matched.length / 2} <span className="text-[#E60012]">/</span> {difficulty === 'easy' ? 8 : (difficulty === 'medium' ? 12 : 18)}</h2>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-[10px] font-black text-white/40 uppercase block mb-1">Turns</span>
-                                <span className="text-2xl font-black text-nintendo-yellow">{flipCount}</span>
-                            </div>
-                        </div>
-
-                        <div className={`grid ${gridCols} gap-2 md:gap-4 w-full max-w-2xl aspect-square`}>
-                            {gameState.cards.map((card, idx) => {
-                                if (card.isSpacer) return (
-                                    <div key="spacer" className="bg-[#1A1A1A] rounded-2xl flex items-center justify-center text-[#E60012] border-4 border-[#2D2D2D]">
-                                        <Icon name="disc" size={32} className="animate-spin" />
-                                    </div>
-                                );
-                                const isFlipped = gameState.flipped.includes(idx) || gameState.matched.includes(idx);
-                                return (
-                                    <div key={card.instanceId} onClick={() => handleCardClick(idx)} className={`relative cursor-pointer transition-all duration-500 preserve-3d h-full ${isFlipped ? 'rotate-y-180' : ''}`}>
-                                        <div className="absolute inset-0 backface-hidden bg-[#E60012] rounded-2xl flex items-center justify-center border-4 border-[#FF1A1A] shadow-lg">
-                                            <div className="w-12 h-12 rounded-full border-4 border-white/20 flex items-center justify-center">
-                                                <div className="w-4 h-4 bg-white/20 rounded-full"></div>
-                                            </div>
-                                        </div>
-                                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-2xl overflow-hidden border-4 border-[#FFF] shadow-xl">
-                                            <img src={card.image} className="w-full h-full object-cover" onError={e => e.target.src = PLACEHOLDER_IMG} />
-                                            {gameState.matched.includes(idx) && (
-                                                <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
-                                                    <div className="bg-[#43B02A] text-white rounded-full p-2 shadow-lg scale-110 animate-pulse">
-                                                        <Icon name="check" size={24} />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {gameState.currentMatchInfo && (
-                            <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50 backdrop-blur-md">
-                                <div className="bg-white rounded-[3rem] max-w-md w-full overflow-hidden shadow-2xl text-center animate-in zoom-in duration-300 border-[8px] border-[#2D2D2D]">
-                                    <div className="relative h-56 w-full">
-                                        <img src={gameState.currentMatchInfo.image} className="h-full w-full object-cover" onError={e => e.target.src = PLACEHOLDER_IMG} />
-                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-white to-transparent opacity-60"></div>
-                                    </div>
-                                    <div className="p-8">
-                                        <span className="bg-[#43B02A] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-2 inline-block">Excellent!</span>
-                                        <h3 className="text-3xl font-black mb-4 text-[#E60012] italic uppercase tracking-tighter">{gameState.currentMatchInfo.name}</h3>
-                                        <p className="text-[#2D2D2D] font-bold mb-8 leading-relaxed">{gameState.currentMatchInfo.info}</p>
-                                        <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000]">CONTINUE</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        {isGameDone && !gameState.currentMatchInfo && (
-                            <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all">
-                                START QUIZ!
-                            </button>
-                        )}
-                    </div>
-                );
-            };
-
-            const QuizView = () => {
-                const q = quizState.questions[quizState.currentIndex];
-                if(!q) return null;
-                return (
-                    <div className="min-h-screen bg-[#00A2E8] flex items-center justify-center p-4">
-                        <div className="bg-white rounded-[3rem] shadow-2xl max-w-xl w-full p-8 md:p-12 relative overflow-hidden border-[8px] border-[#2D2D2D]">
-                            <div className="absolute top-0 left-0 h-4 bg-[#FFD900] transition-all duration-500" style={{ width: `${(quizState.currentIndex / 5) * 100}%` }}></div>
-                            <div className="flex justify-between items-center mb-10">
-                                <span className="bg-[#2D2D2D] text-white px-5 py-1.5 rounded-full text-sm font-black italic">Q {quizState.currentIndex+1} / 5</span>
-                                <span className="text-[#E60012] font-black flex items-center gap-2 animate-pulse"><Icon name="timer" size={18} /> SPEED BONUS ACTIVE</span>
-                            </div>
-                            <h2 className="text-3xl font-black mb-12 text-[#2D2D2D] leading-tight italic uppercase tracking-tighter">
-                                {q.question.replace('{name}', q.deviceName)}
-                            </h2>
-                            <div className="space-y-4">
-                                {q.options.map((opt, i) => (
-                                    <button key={i} onClick={() => submitQuizAnswer(i)} className="w-full text-left p-6 rounded-3xl border-4 border-[#F0F0F0] hover:border-[#E60012] hover:bg-[#E60012] hover:text-white font-black transition-all text-xl flex items-center justify-between group btn-push shadow-md">
-                                        <span>{opt}</span>
-                                        <div className="w-8 h-8 rounded-full bg-[#F0F0F0] group-hover:bg-white flex items-center justify-center text-[#2D2D2D] font-black text-sm">
-                                            {String.fromCharCode(65 + i)}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            const ResultView = () => (
-                <div className="min-h-screen bg-[#E60012] flex flex-col items-center justify-center p-6 text-center">
-                    <div className="bg-white rounded-[4rem] shadow-2xl max-w-md w-full p-12 relative border-[10px] border-[#2D2D2D]">
-                        <div className="bg-[#FFD900] w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 text-[#2D2D2D] rotate-12 shadow-xl border-8 border-white"><Icon name="star" size={64} /></div>
-                        <h2 className="text-5xl font-black mb-2 text-[#E60012] italic tracking-tighter uppercase">Game Over!</h2>
-                        <p className="text-[#2D2D2D] font-black mb-8 uppercase tracking-widest text-sm opacity-50">Score Summary</p>
-                        
-                        <div className="mb-10">
-                            <div className="text-[100px] leading-none font-black text-[#2D2D2D] drop-shadow-lg tracking-tighter">{finalScore.toLocaleString()}</div>
-                            <p className="text-[#E60012] font-black text-xl uppercase tracking-widest mt-2">Points</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-12">
-                            <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
-                                <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Turns Taken</span>
-                                <span className="font-black text-2xl text-[#E60012]">{flipCount}</span>
-                            </div>
-                            <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
-                                <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Quiz Accuracy</span>
-                                <span className="font-black text-2xl text-[#43B02A]">{quizState.score} / 5</span>
-                            </div>
-                        </div>
-
-                        <button onClick={() => setView('menu')} className="w-full bg-[#2D2D2D] text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-[#000] transition-all text-2xl btn-push italic">NEW CHALLENGE</button>
-                    </div>
-                </div>
-            );
-
-            // --- 後台管理 ---
-            const AdminLogin = () => {
-                const [creds, setCreds] = useState({ user: '', pass: '' });
-                return (
-                    <div className="min-h-screen flex items-center justify-center p-6 bg-[#2D2D2D]">
-                        <form onSubmit={(e) => { e.preventDefault(); if(creds.user==='Admin01' && creds.pass==='76380260') setView('admin'); else alert('Access Denied'); }} className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center border-[6px] border-[#E60012]">
-                            <h2 className="text-3xl font-black mb-8 text-[#E60012] italic">SYSTEM CONFIG</h2>
-                            <div className="space-y-4">
-                                <input type="text" placeholder="ADMIN ID" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, user: e.target.value})} />
-                                <input type="password" placeholder="PASSWORD" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, pass: e.target.value})} />
-                                <button className="w-full bg-[#E60012] text-white py-4 rounded-2xl font-black btn-push">LOGIN</button>
-                                <button type="button" onClick={()=>setView('menu')} className="text-slate-400 font-bold pt-4 hover:text-[#E60012]">CANCEL</button>
-                            </div>
-                        </form>
-                    </div>
-                );
-            };
-
-            const AdminView = () => {
-                const [newItem, setNewItem] = useState({ name:'', image:'', info:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
-                const [editingId, setEditingId] = useState(null);
-                const colRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
-
-                const save = async (e) => {
-                    e.preventDefault();
-                    if(editingId) await colRef.doc(editingId).update(newItem);
-                    else await colRef.add(newItem);
-                    setNewItem({ name:'', image:'', info:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
-                    setEditingId(null);
-                    alert("儲存成功！");
-                };
-
-                const handleGit = (val) => {
-                    let u = val;
-                    if(u.includes('github.com') && u.includes('/blob/')) u = u.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-                    setNewItem({...newItem, image: u});
-                };
-
-                return (
-                    <div className="p-8 max-w-6xl mx-auto min-h-screen">
-                        <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg">
-                            <h1 className="text-3xl font-black italic text-[#E60012] uppercase">Console Manager</h1>
-                            <button onClick={()=>setView('menu')} className="bg-[#2D2D2D] text-white px-6 py-2 rounded-xl font-black hover:bg-[#000]">EXIT</button>
-                        </div>
-                        <div className="grid lg:grid-cols-2 gap-8">
-                            <form onSubmit={save} className="bg-white p-8 rounded-[2.5rem] border-4 border-[#2D2D2D] space-y-4 shadow-xl">
-                                <label className="text-xs font-black text-slate-400 uppercase">Device Info</label>
-                                <input value={newItem.name} placeholder="DEVICE NAME" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold" onChange={e=>setNewItem({...newItem, name: e.target.value})} />
-                                <input value={newItem.image} placeholder="GITHUB IMAGE URL" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold text-xs" onChange={e=>handleGit(e.target.value)} />
-                                <textarea value={newItem.info} placeholder="DETAILED DESCRIPTION" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none h-32 font-bold" onChange={e=>setNewItem({...newItem, info: e.target.value})} />
-                                <div className="p-6 bg-[#2D2D2D] rounded-3xl text-white text-left">
-                                    <p className="font-black text-xs mb-3 text-nintendo-yellow uppercase tracking-widest">Quiz Parameters</p>
-                                    <input value={newItem.question} className="w-full p-3 mb-4 rounded-xl border-none bg-white/10 outline-none focus:bg-white/20 font-bold" onChange={e=>setNewItem({...newItem, question: e.target.value})} />
-                                    {newItem.options.map((o,i)=>(
-                                        <div key={i} className="flex gap-3 mb-3 items-center">
-                                            <input type="radio" checked={newItem.correct===i} onChange={()=>setNewItem({...newItem, correct: i})} className="accent-nintendo-yellow" />
-                                            <input value={o} className="flex-1 p-3 rounded-xl border-none bg-white/10 outline-none text-sm font-bold" placeholder={`Option ${i+1}`} onChange={e=>{
-                                                const ns = [...newItem.options]; ns[i]=e.target.value; setNewItem({...newItem, options: ns});
-                                            }} />
-                                        </div>
-                                    ))}
-                                </div>
-                                <button className="w-full bg-[#E60012] text-white py-5 rounded-3xl font-black text-xl btn-push shadow-lg uppercase">{editingId ? 'Update Content' : 'Add New Data'}</button>
-                            </form>
-                            <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2">
-                                {cardsData.map(item=>(
-                                    <div key={item.id} className="p-5 bg-white border-4 border-[#2D2D2D] rounded-3xl flex items-center gap-5 shadow-lg group hover:bg-[#F0F0F0] transition-colors">
-                                        <img src={item.image} className="w-20 h-20 rounded-2xl object-cover border-4 border-[#2D2D2D]" />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-black text-xl italic text-[#2D2D2D] truncate uppercase tracking-tighter">{item.name}</p>
-                                            <div className="flex gap-4 mt-3">
-                                                <button onClick={()=>{setEditingId(item.id); setNewItem({...item})}} className="bg-indigo-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:bg-indigo-600 transition-colors uppercase">Edit</button>
-                                                <button onClick={()=> {if(confirm('Delete?')) colRef.doc(item.id).delete()}} className="bg-rose-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:bg-rose-600 transition-colors uppercase">Delete</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {cardsData.length === 0 && <p className="text-center py-20 text-slate-300 font-bold italic uppercase">Storage is empty</p>}
-                            </div>
-                        </div>
-                    </div>
-                );
             };
 
             return (
                 <div className="min-h-screen overflow-x-hidden">
-                    {view === 'menu' && <MainMenu />}
-                    {view === 'game' && <GameBoard />}
-                    {view === 'quiz' && <QuizView />}
-                    {view === 'result' && <ResultView />}
-                    {view === 'admin_login' && <AdminLogin />}
-                    {view === 'admin' && <AdminView />}
+                    {view === 'menu' && (
+                        <MainMenu 
+                            playerName={playerName} 
+                            setPlayerName={setPlayerName} 
+                            startGame={startGame} 
+                            leaderboard={leaderboard} 
+                            setView={setView} 
+                        />
+                    )}
+                    {view === 'game' && (
+                        <GameBoard 
+                            difficulty={difficulty} 
+                            playerName={playerName} 
+                            setView={setView} 
+                            gameState={gameState} 
+                            setGameState={setGameState} 
+                            handleCardClick={handleCardClick} 
+                            flipCount={flipCount} 
+                            startQuiz={startQuiz} 
+                        />
+                    )}
+                    {view === 'quiz' && (
+                        <QuizView 
+                            quizState={quizState} 
+                            submitQuizAnswer={submitQuizAnswer} 
+                        />
+                    )}
+                    {view === 'result' && (
+                        <ResultView 
+                            finalScore={finalScore} 
+                            flipCount={flipCount} 
+                            quizState={quizState} 
+                            setView={setView} 
+                        />
+                    )}
+                    {view === 'admin_login' && (
+                        <AdminLogin 
+                            setView={setView} 
+                        />
+                    )}
+                    {view === 'admin' && (
+                        <AdminView 
+                            cardsData={cardsData} 
+                            db={db} 
+                            appId={appId} 
+                            setView={setView} 
+                        />
+                    )}
                 </div>
             );
         }
