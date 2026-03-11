@@ -82,15 +82,30 @@
         const MainMenu = ({ playerName, setPlayerName, startGame, leaderboard, setView }) => (
             <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-6 bg-[#E60012]">
                 <div className="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-2xl max-w-lg w-full border-[6px] border-[#2D2D2D]">
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-6">
                         <div className="inline-flex p-4 bg-[#2D2D2D] rounded-full text-white mb-4 animate-bounce">
                             <Icon name="gamepad-2" size={48} />
                         </div>
-                        <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic">設備對對碰</h1>
-                        <p className="text-[#2D2D2D] font-bold mt-3 text-lg uppercase tracking-widest">Challenge Mode</p>
+                        <h1 className="text-5xl font-black text-[#E60012] tracking-tighter italic uppercase">設備對對碰</h1>
+                        <p className="text-[#2D2D2D] font-bold mt-2 text-lg uppercase tracking-widest">Challenge Mode</p>
                     </div>
 
-                    <div className="mb-8 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC]">
+                    {/* 遊戲說明區塊 */}
+                    <div className="mb-6 p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 text-left">
+                        <h3 className="flex items-center gap-2 text-amber-700 font-black text-sm mb-2 uppercase italic tracking-wider">
+                            <Icon name="info" size={16} /> 遊戲說明 / HOW TO PLAY
+                        </h3>
+                        <ul className="text-xs font-bold text-amber-800 space-y-1.5 leading-relaxed">
+                            <li className="flex gap-2"><span>1.</span> <span>翻開兩張相同卡牌即配對成功，並可查看設備詳細介紹。</span></li>
+                            <li className="flex gap-2"><span>2.</span> <span>配對完成後將進入「知識小測驗」，隨機抽取 5 題。</span></li>
+                            <li className="flex gap-2"><span>3.</span> <span className="text-red-600 underline">翻牌次數越少、測驗答題越快且準確，總得分越高！</span></li>
+                            <li className="flex gap-2"><span>4.</span> <span>難度越高，最後的積分倍率加成也越高。</span></li>
+                            <li className="flex gap-2"><span>5.</span> <span className="text-indigo-600">翻牌速度不列入分數計算，遊戲目的在於學習設備知識，勿為得分不看內容就跳出設備介紹。</span></li>
+                        </ul>
+                    </div>
+
+                    {/* 參賽者輸入 */}
+                    <div className="mb-6 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC] text-left">
                         <label className="block text-xs font-black text-[#2D2D2D] mb-2 uppercase tracking-tighter">Enter Player Name</label>
                         <input 
                             type="text" 
@@ -102,32 +117,32 @@
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div className="grid grid-cols-1 gap-4 mb-6">
                         <button onClick={() => startGame('easy')} className="flex items-center justify-between p-5 nintendo-green text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                            <span className="font-black text-2xl italic">EASY (4x4)</span>
+                            <span className="font-black text-2xl italic uppercase">Easy (4x4)</span>
                             <Icon name="play-circle" />
                         </button>
                         <button onClick={() => startGame('medium')} className="flex items-center justify-between p-5 nintendo-blue text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                            <span className="font-black text-2xl italic">MEDIUM (5x5)</span>
+                            <span className="font-black text-2xl italic uppercase">Medium (5x5)</span>
                             <Icon name="play-circle" />
                         </button>
                         <button onClick={() => startGame('hard')} className="flex items-center justify-between p-5 nintendo-red text-white rounded-2xl transition-all border-b-4 border-black/20 btn-push">
-                            <span className="font-black text-2xl italic">HARD (6x6)</span>
+                            <span className="font-black text-2xl italic uppercase">Hard (6x6)</span>
                             <Icon name="play-circle" />
                         </button>
                     </div>
 
-                    <div className="bg-[#2D2D2D] rounded-3xl p-6 text-white">
+                    <div className="bg-[#2D2D2D] rounded-3xl p-6 text-white text-left">
                         <h3 className="text-center font-black nintendo-yellow text-[#2D2D2D] inline-block px-4 py-1 rounded-full text-xs mb-4 mx-auto w-full uppercase tracking-widest">Global Ranking</h3>
                         <div className="space-y-3">
                             {leaderboard.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
+                                <div key={i} className="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors border border-white/5">
                                     <div className="flex items-center gap-3">
                                         <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-xs font-black ${i === 0 ? 'bg-[#FFD900] text-[#2D2D2D]' : 'bg-white/20 text-white'}`}>{i+1}</span>
                                         <span className="font-black truncate w-24 md:w-32">{item.name}</span>
                                         <span className={`text-[10px] px-2 py-0.5 rounded font-black uppercase ${item.mode === 'hard' ? 'bg-rose-500' : (item.mode === 'medium' ? 'bg-blue-500' : 'bg-emerald-500')}`}>{item.mode}</span>
                                     </div>
-                                    <span className="font-black text-[#FFD900]">{item.score.toLocaleString()}</span>
+                                    <span className="font-black text-[#FFD900] font-mono">{item.score.toLocaleString()}</span>
                                 </div>
                             ))}
                             {leaderboard.length === 0 && <p className="text-center text-white/30 text-xs py-4">Waiting for players...</p>}
@@ -141,27 +156,30 @@
             </div>
         );
 
-        const GameBoard = ({ difficulty, playerName, setView, gameState, setGameState, handleCardClick, flipCount, startQuiz }) => {
+        const GameBoard = ({ difficulty, playerName, setView, gameState, setGameState, handleCardClick, flipCount, startQuiz, isPaused, setIsPaused }) => {
             const gridCols = difficulty === 'easy' ? 'grid-cols-4' : (difficulty === 'medium' ? 'grid-cols-5' : 'grid-cols-6');
             const isGameDone = gameState.matched.length === (difficulty === 'medium' ? 24 : (difficulty === 'easy' ? 16 : 36));
             return (
                 <div className="min-h-screen bg-[#2D2D2D] p-4 flex flex-col items-center justify-center">
                     <div className="w-full max-w-2xl flex justify-between items-end mb-6 text-white pt-4">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col text-left">
                             <span className="text-xs font-black uppercase text-[#E60012]">Player: {playerName || "Guest"}</span>
-                            <button onClick={() => setView('menu')} className="bg-[#E60012] text-white px-3 py-1 rounded-full text-xs font-black mt-1 hover:bg-[#FF1A1A]">HOME</button>
+                            <div className="flex gap-2 mt-1">
+                                <button onClick={() => setView('menu')} className="bg-[#E60012] text-white px-3 py-1 rounded-full text-[10px] font-black hover:bg-[#FF1A1A]">首頁</button>
+                                <button onClick={() => setIsPaused(true)} className="bg-slate-600 text-white px-3 py-1 rounded-full text-[10px] font-black hover:bg-slate-500 uppercase tracking-tighter">暫停</button>
+                            </div>
                         </div>
                         <div className="text-center">
-                            <span className="text-[10px] font-black uppercase block text-white/40 mb-1 tracking-tighter">Matching Progress</span>
+                            <span className="text-[10px] font-black uppercase block text-white/40 mb-1 tracking-tighter text-center">Matching Progress</span>
                             <h2 className="text-3xl font-black italic">{gameState.matched.length / 2} <span className="text-[#E60012]">/</span> {difficulty === 'easy' ? 8 : (difficulty === 'medium' ? 12 : 18)}</h2>
                         </div>
                         <div className="text-right">
                             <span className="text-[10px] font-black text-white/40 uppercase block mb-1">Turns</span>
-                            <span className="text-2xl font-black text-nintendo-yellow">{flipCount}</span>
+                            <span className="text-2xl font-black text-nintendo-yellow font-mono">{flipCount}</span>
                         </div>
                     </div>
 
-                    <div className={`grid ${gridCols} gap-2 md:gap-4 w-full max-w-2xl aspect-square`}>
+                    <div className={`grid ${gridCols} gap-2 md:gap-4 w-full max-w-2xl aspect-square relative`}>
                         {gameState.cards.map((card, idx) => {
                             if (card.isSpacer) return (
                                 <div key="spacer" className="bg-[#1A1A1A] rounded-2xl flex items-center justify-center text-[#E60012] border-4 border-[#2D2D2D]">
@@ -170,7 +188,7 @@
                             );
                             const isFlipped = gameState.flipped.includes(idx) || gameState.matched.includes(idx);
                             return (
-                                <div key={card.instanceId} onClick={() => handleCardClick(idx)} className={`relative cursor-pointer transition-all duration-500 preserve-3d h-full ${isFlipped ? 'rotate-y-180' : ''}`}>
+                                <div key={card.instanceId} onClick={() => !isPaused && handleCardClick(idx)} className={`relative cursor-pointer transition-all duration-500 preserve-3d h-full ${isFlipped ? 'rotate-y-180' : ''}`}>
                                     <div className="absolute inset-0 backface-hidden bg-[#E60012] rounded-2xl flex items-center justify-center border-4 border-[#FF1A1A] shadow-lg">
                                         <div className="w-12 h-12 rounded-full border-4 border-white/20 flex items-center justify-center">
                                             <div className="w-4 h-4 bg-white/20 rounded-full"></div>
@@ -191,6 +209,21 @@
                         })}
                     </div>
 
+                    {/* 暫停遮罩 - 已更換為中文 */}
+                    {isPaused && (
+                        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-6 z-[60] backdrop-blur-sm">
+                            <div className="bg-white rounded-[3rem] p-12 text-center border-[8px] border-[#2D2D2D] shadow-2xl animate-in zoom-in duration-200">
+                                <h2 className="text-5xl font-black text-[#E60012] italic mb-8 tracking-tighter uppercase">遊戲暫停</h2>
+                                <button 
+                                    onClick={() => setIsPaused(false)} 
+                                    className="bg-[#2D2D2D] text-white font-black py-6 px-16 rounded-2xl shadow-xl btn-push hover:bg-[#000] text-2xl uppercase italic"
+                                >
+                                    繼續遊戲
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {gameState.currentMatchInfo && (
                         <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50 backdrop-blur-md">
                             <div className="bg-white rounded-[3rem] max-w-md w-full overflow-hidden shadow-2xl text-center animate-in zoom-in duration-300 border-[8px] border-[#2D2D2D]">
@@ -200,16 +233,16 @@
                                 </div>
                                 <div className="p-8">
                                     <span className="bg-[#43B02A] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-2 inline-block">Excellent!</span>
-                                    <h3 className="text-3xl font-black mb-4 text-[#E60012] italic">{gameState.currentMatchInfo.name}</h3>
+                                    <h3 className="text-3xl font-black mb-4 text-[#E60012] italic uppercase tracking-tighter">{gameState.currentMatchInfo.name}</h3>
                                     <p className="text-[#2D2D2D] font-bold mb-8 leading-relaxed">{gameState.currentMatchInfo.info}</p>
-                                    <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000]">CONTINUE</button>
+                                    <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000]">繼續翻牌</button>
                                 </div>
                             </div>
                         </div>
                     )}
                     {isGameDone && !gameState.currentMatchInfo && (
-                        <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all">
-                            START QUIZ!
+                        <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all uppercase italic">
+                            Start Quiz!
                         </button>
                     )}
                 </div>
@@ -227,14 +260,14 @@
                             <span className="bg-[#2D2D2D] text-white px-5 py-1.5 rounded-full text-sm font-black italic">Q {quizState.currentIndex+1} / 5</span>
                             <span className="text-[#E60012] font-black flex items-center gap-2 animate-pulse"><Icon name="timer" size={18} /> SPEED BONUS ACTIVE</span>
                         </div>
-                        <h2 className="text-3xl font-black mb-12 text-[#2D2D2D] leading-tight italic uppercase tracking-tighter">
+                        <h2 className="text-3xl font-black mb-12 text-[#2D2D2D] leading-tight italic uppercase tracking-tighter text-left">
                             {q.question.replace('{name}', q.deviceName)}
                         </h2>
-                        <div className="space-y-4">
+                        <div className="space-y-4 text-left">
                             {q.options.map((opt, i) => (
                                 <button key={i} onClick={() => submitQuizAnswer(i)} className="w-full text-left p-6 rounded-3xl border-4 border-[#F0F0F0] hover:border-[#E60012] hover:bg-[#E60012] hover:text-white font-black transition-all text-xl flex items-center justify-between group btn-push shadow-md">
                                     <span>{opt}</span>
-                                    <div className="w-8 h-8 rounded-full bg-[#F0F0F0] group-hover:bg-white flex items-center justify-center text-[#2D2D2D] font-black text-sm">
+                                    <div className="w-8 h-8 rounded-full bg-[#F0F0F0] group-hover:bg-white flex items-center justify-center text-[#2D2D2D] font-black text-sm shrink-0">
                                         {String.fromCharCode(65 + i)}
                                     </div>
                                 </button>
@@ -249,22 +282,22 @@
             <div className="min-h-screen bg-[#E60012] flex flex-col items-center justify-center p-6 text-center">
                 <div className="bg-white rounded-[4rem] shadow-2xl max-w-md w-full p-12 relative border-[10px] border-[#2D2D2D]">
                     <div className="bg-[#FFD900] w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 text-[#2D2D2D] rotate-12 shadow-xl border-8 border-white"><Icon name="star" size={64} /></div>
-                    <h2 className="text-5xl font-black mb-2 text-[#E60012] italic tracking-tighter">GAME OVER!</h2>
+                    <h2 className="text-5xl font-black mb-2 text-[#E60012] italic tracking-tighter uppercase">GAME OVER!</h2>
                     <p className="text-[#2D2D2D] font-black mb-8 uppercase tracking-widest text-sm opacity-50">Score Summary</p>
                     
                     <div className="mb-10">
-                        <div className="text-[100px] leading-none font-black text-[#2D2D2D] drop-shadow-lg tracking-tighter">{finalScore.toLocaleString()}</div>
+                        <div className="text-[100px] leading-none font-black text-[#2D2D2D] drop-shadow-lg tracking-tighter font-mono">{finalScore.toLocaleString()}</div>
                         <p className="text-[#E60012] font-black text-xl uppercase tracking-widest mt-2">Points</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-12">
+                    <div className="grid grid-cols-2 gap-4 mb-12 text-left">
                         <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
                             <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Turns Taken</span>
-                            <span className="font-black text-2xl text-[#E60012]">{flipCount}</span>
+                            <span className="font-black text-2xl text-[#E60012] font-mono">{flipCount}</span>
                         </div>
                         <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200">
                             <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Quiz Accuracy</span>
-                            <span className="font-black text-2xl text-[#43B02A]">{quizState.score} / 5</span>
+                            <span className="font-black text-2xl text-[#43B02A] font-mono">{quizState.score} / 5</span>
                         </div>
                     </div>
 
@@ -301,6 +334,7 @@
                 else await colRef.add(newItem);
                 setNewItem({ name:'', image:'', info:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
                 setEditingId(null);
+                alert("儲存成功！");
             };
 
             const handleGit = (val) => {
@@ -310,9 +344,9 @@
             };
 
             return (
-                <div className="p-8 max-w-6xl mx-auto min-h-screen">
+                <div className="p-8 max-w-6xl mx-auto min-h-screen text-left">
                     <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg">
-                        <h1 className="text-3xl font-black italic text-[#E60012]">CONSOLE MANAGER</h1>
+                        <h1 className="text-3xl font-black italic text-[#E60012] uppercase">Console Manager</h1>
                         <button onClick={()=>setView('menu')} className="bg-[#2D2D2D] text-white px-6 py-2 rounded-xl font-black hover:bg-[#000]">EXIT</button>
                     </div>
                     <div className="grid lg:grid-cols-2 gap-8">
@@ -365,9 +399,9 @@
             const [playerName, setPlayerName] = useState("");
             const [difficulty, setDifficulty] = useState(null);
             
-            // 遊戲過程紀錄
             const [flipCount, setFlipCount] = useState(0);
             const [quizStartTime, setQuizStartTime] = useState(null);
+            const [isPaused, setIsPaused] = useState(false);
 
             const [gameState, setGameState] = useState({
                 cards: [],
@@ -386,7 +420,6 @@
 
             const [finalScore, setFinalScore] = useState(0);
 
-            // 1. 初始化登入與資料監聽
             useEffect(() => {
                 const init = async () => {
                     try {
@@ -400,14 +433,10 @@
 
             useEffect(() => {
                 if (!user) return;
-                
-                // 監聽卡片資料
                 const cardsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
                 const unsubCards = cardsRef.onSnapshot(snap => {
                     setCardsData(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
                 });
-
-                // 監聽排行榜
                 const lbRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('leaderboard');
                 const unsubLb = lbRef.onSnapshot(snap => {
                     const sorted = snap.docs
@@ -416,21 +445,18 @@
                         .slice(0, 5);
                     setLeaderboard(sorted);
                 });
-
                 return () => { unsubCards(); unsubLb(); };
             }, [user]);
 
-            // --- 遊戲邏輯函數 ---
             const startGame = (diff) => {
                 setDifficulty(diff);
                 setFlipCount(0);
+                setIsPaused(false);
                 let pairsCount = diff === 'easy' ? 8 : (diff === 'medium' ? 12 : 18);
-                
                 if (cardsData.length < pairsCount) {
                     alert(`設備資料不足！目前只有 ${cardsData.length} 種，請由管理後台新增。`);
                     return;
                 }
-
                 const selectedData = [...cardsData].sort(() => 0.5 - Math.random()).slice(0, pairsCount);
                 let cards = [];
                 selectedData.forEach((item, index) => {
@@ -440,19 +466,17 @@
                 });
                 cards = cards.sort(() => 0.5 - Math.random());
                 if (diff === 'medium') cards.splice(12, 0, { isSpacer: true });
-
                 setGameState({ cards, flipped: [], matched: [], currentMatchInfo: null, matchedCardsData: selectedData });
                 setView('game');
             };
 
             const handleCardClick = (index) => {
+                if (isPaused) return;
                 const { flipped, matched, cards } = gameState;
                 if (flipped.length === 2 || matched.includes(index) || flipped.includes(index) || cards[index].isSpacer) return;
-
                 const newFlipped = [...flipped, index];
                 setGameState(prev => ({ ...prev, flipped: newFlipped }));
                 setFlipCount(prev => prev + 1);
-
                 if (newFlipped.length === 2) {
                     const c1 = cards[newFlipped[0]];
                     const c2 = cards[newFlipped[1]];
@@ -486,7 +510,6 @@
                 const isCorrect = idx === q.correct;
                 const newScore = isCorrect ? quizState.score + 1 : quizState.score;
                 const newResults = [...quizState.results, { name: q.deviceName, isCorrect }];
-                
                 if (quizState.currentIndex === quizState.questions.length - 1) {
                     const quizEndTime = Date.now();
                     calculateFinalResults(newScore, quizEndTime, newResults);
@@ -503,13 +526,10 @@
                 const correctPoints = quizScore * 500;
                 const speedBonus = Math.max(0, Math.floor((30 - quizDurationSec) * 20));
                 const multiplier = difficulty === 'easy' ? 1 : (difficulty === 'medium' ? 1.3 : 1.6);
-                
                 const total = Math.floor((gameScore + correctPoints + speedBonus) * multiplier);
-                
                 setFinalScore(total);
                 setQuizState(prev => ({ ...prev, score: quizScore, results }));
                 setView('result');
-
                 if (playerName.trim()) {
                     try {
                         await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('leaderboard').add({
@@ -543,6 +563,8 @@
                             handleCardClick={handleCardClick} 
                             flipCount={flipCount} 
                             startQuiz={startQuiz} 
+                            isPaused={isPaused}
+                            setIsPaused={setIsPaused}
                         />
                     )}
                     {view === 'quiz' && (
