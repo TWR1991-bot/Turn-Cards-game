@@ -104,7 +104,6 @@
                         </ul>
                     </div>
 
-                    {/* 參賽者輸入 */}
                     <div className="mb-6 p-6 bg-[#F0F0F0] rounded-3xl border-4 border-dashed border-[#CCCCCC] text-left">
                         <label className="block text-xs font-black text-[#2D2D2D] mb-2 uppercase tracking-tighter">Enter Player Name</label>
                         <input 
@@ -149,7 +148,7 @@
                         </div>
                     </div>
 
-                    <button onClick={() => setView('admin_login')} className="mt-8 text-slate-400 hover:text-[#E60012] flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase tracking-widest">
+                    <button onClick={() => setView('admin_login')} className="mt-8 text-slate-400 hover:text-[#E60012] flex items-center gap-2 text-[10px] mx-auto transition-colors font-bold uppercase tracking-widest" title="Console Manager">
                         <Icon name="cog" size={12} /> Console Settings
                     </button>
                 </div>
@@ -166,7 +165,7 @@
                             <span className="text-xs font-black uppercase text-[#E60012]">Player: {playerName || "Guest"}</span>
                             <div className="flex gap-2 mt-1">
                                 <button onClick={() => setView('menu')} className="bg-[#E60012] text-white px-3 py-1 rounded-full text-[10px] font-black hover:bg-[#FF1A1A]">首頁</button>
-                                <button onClick={() => setIsPaused(true)} className="bg-slate-600 text-white px-3 py-1 rounded-full text-[10px] font-black hover:bg-slate-500 uppercase tracking-tighter">暫停</button>
+                                <button onClick={() => setIsPaused(true)} className="bg-slate-600 text-white px-3 py-1 rounded-full text-[10px] font-black hover:bg-slate-500 uppercase tracking-tighter text-center">暫停</button>
                             </div>
                         </div>
                         <div className="text-center">
@@ -215,7 +214,7 @@
                                 <h2 className="text-5xl font-black text-[#E60012] italic mb-8 tracking-tighter uppercase">遊戲暫停</h2>
                                 <button 
                                     onClick={() => setIsPaused(false)} 
-                                    className="bg-[#2D2D2D] text-white font-black py-6 px-16 rounded-2xl shadow-xl btn-push hover:bg-[#000] text-2xl uppercase italic"
+                                    className="bg-[#2D2D2D] text-white font-black py-6 px-16 rounded-2xl shadow-xl btn-push hover:bg-[#000] text-2xl uppercase italic text-center"
                                 >
                                     繼續遊戲
                                 </button>
@@ -234,13 +233,13 @@
                                     <span className="bg-[#43B02A] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-2 inline-block">Excellent!</span>
                                     <h3 className="text-3xl font-black mb-4 text-[#E60012] italic uppercase tracking-tighter">{gameState.currentMatchInfo.name}</h3>
                                     <p className="text-[#2D2D2D] font-bold mb-8 leading-relaxed">{gameState.currentMatchInfo.info}</p>
-                                    <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000]">繼續翻牌</button>
+                                    <button onClick={() => setGameState(prev => ({ ...prev, currentMatchInfo: null }))} className="w-full bg-[#2D2D2D] text-white font-black py-5 rounded-2xl shadow-xl btn-push hover:bg-[#000] text-center">繼續翻牌</button>
                                 </div>
                             </div>
                         </div>
                     )}
                     {isGameDone && !gameState.currentMatchInfo && (
-                        <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all uppercase italic">
+                        <button onClick={startQuiz} className="mt-8 bg-white text-[#E60012] px-12 py-5 rounded-[2.5rem] font-black text-3xl shadow-2xl animate-bounce border-b-[8px] border-slate-300 hover:translate-y-1 hover:border-b-[4px] transition-all uppercase italic text-center">
                             Start Quiz!
                         </button>
                     )}
@@ -291,16 +290,16 @@
 
                     <div className="grid grid-cols-2 gap-4 mb-12 text-left">
                         <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200 text-center">
-                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Turns Taken</span>
+                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1 text-center">Turns Taken</span>
                             <span className="font-black text-2xl text-[#E60012] font-mono">{flipCount}</span>
                         </div>
                         <div className="p-4 bg-[#F0F0F0] rounded-3xl border-b-4 border-slate-200 text-center">
-                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1">Quiz Accuracy</span>
+                            <span className="text-[#2D2D2D]/40 font-black text-[10px] uppercase block mb-1 text-center">Quiz Accuracy</span>
                             <span className="font-black text-2xl text-[#43B02A] font-mono">{quizState.score} / 5</span>
                         </div>
                     </div>
 
-                    <button onClick={() => setView('menu')} className="w-full bg-[#2D2D2D] text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-[#000] transition-all text-2xl btn-push italic">NEW CHALLENGE</button>
+                    <button onClick={() => setView('menu')} className="w-full bg-[#2D2D2D] text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-[#000] transition-all text-2xl btn-push italic text-center">NEW CHALLENGE</button>
                 </div>
             </div>
         );
@@ -310,12 +309,12 @@
             return (
                 <div className="min-h-screen flex items-center justify-center p-6 bg-[#2D2D2D]">
                     <form onSubmit={(e) => { e.preventDefault(); if(creds.user==='Admin01' && creds.pass==='76380260') setView('admin'); else alert('Access Denied'); }} className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center border-[6px] border-[#E60012]">
-                        <h2 className="text-3xl font-black mb-8 text-[#E60012] italic">SYSTEM CONFIG</h2>
+                        <h2 className="text-3xl font-black mb-8 text-[#E60012] italic uppercase">System Config</h2>
                         <div className="space-y-4">
                             <input type="text" placeholder="ADMIN ID" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, user: e.target.value})} />
                             <input type="password" placeholder="PASSWORD" className="w-full p-4 border-4 border-[#F0F0F0] rounded-2xl outline-none focus:border-[#E60012]" onChange={e=>setCreds({...creds, pass: e.target.value})} />
-                            <button className="w-full bg-[#E60012] text-white py-4 rounded-2xl font-black btn-push">LOGIN</button>
-                            <button type="button" onClick={()=>setView('menu')} className="text-slate-400 font-bold pt-4 hover:text-[#E60012]">CANCEL</button>
+                            <button className="w-full bg-[#E60012] text-white py-4 rounded-2xl font-black btn-push text-center">LOGIN</button>
+                            <button type="button" onClick={()=>setView('menu')} className="text-slate-400 font-bold pt-4 hover:text-[#E60012] text-center">CANCEL</button>
                         </div>
                     </form>
                 </div>
@@ -325,17 +324,24 @@
         const AdminView = ({ cardsData, db, appId, setView }) => {
             const [newItem, setNewItem] = useState({ name:'', image:'', info:'', category:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });
             const [editingId, setEditingId] = useState(null);
+            const [activeCategory, setActiveCategory] = useState('全部');
             const colRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('deviceCards');
 
-            // 依照類別分群資料
-            const groupedData = useMemo(() => {
-                return cardsData.reduce((acc, item) => {
-                    const cat = item.category || '未分類';
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(item);
-                    return acc;
-                }, {});
+            // 類別選單 (包含 "全部")
+            const categories = useMemo(() => {
+                const uniqueCats = Array.from(new Set(cardsData.map(item => item.category || '未分類')));
+                return ['全部', ...uniqueCats.sort()];
             }, [cardsData]);
+
+            // 過濾並依照筆畫數排序資料
+            const filteredAndSortedData = useMemo(() => {
+                let data = activeCategory === '全部' 
+                    ? cardsData 
+                    : cardsData.filter(item => (item.category || '未分類') === activeCategory);
+                
+                // 使用 localeCompare 搭配 zh-Hant (繁體中文) 進行筆畫/發音排序
+                return [...data].sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+            }, [cardsData, activeCategory]);
 
             const save = async (e) => {
                 e.preventDefault();
@@ -353,80 +359,127 @@
             };
 
             return (
-                <div className="p-8 max-w-6xl mx-auto min-h-screen text-left">
-                    <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg text-left">
+                <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-screen text-left">
+                    <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg">
                         <h1 className="text-3xl font-black italic text-[#E60012] uppercase tracking-tighter">Console Manager</h1>
-                        <button onClick={()=>setView('menu')} className="bg-[#2D2D2D] text-white px-6 py-2 rounded-xl font-black hover:bg-[#000]">EXIT</button>
+                        <button onClick={()=>setView('menu')} className="bg-[#2D2D2D] text-white px-6 py-2 rounded-xl font-black hover:bg-[#000] text-center">EXIT</button>
                     </div>
-                    <div className="grid lg:grid-cols-2 gap-8 text-left items-start">
-                        {/* 左側表單 */}
-                        <form onSubmit={save} className="bg-white p-8 rounded-[2.5rem] border-4 border-[#2D2D2D] space-y-4 shadow-xl sticky top-8">
-                            <h2 className="font-black text-xl text-[#E60012] mb-4 underline decoration-4">題目建立與修改</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase">Category / 類別</label>
-                                    <input value={newItem.category} placeholder="類別 (如: 影像儀器)" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#00A2E8] outline-none font-bold" onChange={e=>setNewItem({...newItem, category: e.target.value})} />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase">Device Name / 名稱</label>
-                                    <input value={newItem.name} placeholder="設備名稱" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold" onChange={e=>setNewItem({...newItem, name: e.target.value})} />
-                                </div>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Github Image URL / 圖片網址</label>
-                                <input value={newItem.image} placeholder="GITHUB IMAGE URL" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold text-xs" onChange={e=>handleGit(e.target.value)} />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Description / 設備介紹</label>
-                                <textarea value={newItem.info} placeholder="設備介紹..." className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none h-24 font-bold" onChange={e=>setNewItem({...newItem, info: e.target.value})} />
-                            </div>
-                            <div className="p-6 bg-[#2D2D2D] rounded-3xl text-white">
-                                <p className="font-black text-xs mb-3 text-nintendo-yellow uppercase tracking-widest">Quiz Parameters</p>
-                                <input value={newItem.question} className="w-full p-3 mb-4 rounded-xl border-none bg-white/10 outline-none focus:bg-white/20 font-bold" onChange={e=>setNewItem({...newItem, question: e.target.value})} />
-                                {newItem.options.map((o,i)=>(
-                                    <div key={i} className="flex gap-3 mb-3 items-center">
-                                        <input type="radio" checked={newItem.correct===i} onChange={()=>setNewItem({...newItem, correct: i})} className="accent-nintendo-yellow" />
-                                        <input value={o} className="flex-1 p-3 rounded-xl border-none bg-white/10 outline-none text-sm font-bold" placeholder={`Option ${i+1}`} onChange={e=>{
-                                            const ns = [...newItem.options]; ns[i]=e.target.value; setNewItem({...newItem, options: ns});
-                                        }} />
+                    
+                    <div className="grid lg:grid-cols-12 gap-8 text-left items-start">
+                        {/* 左側表單 (佔 5 格) */}
+                        <div className="lg:col-span-5">
+                            <form onSubmit={save} className="bg-white p-8 rounded-[2.5rem] border-4 border-[#2D2D2D] space-y-4 shadow-xl sticky top-8">
+                                <h2 className="font-black text-xl text-[#E60012] mb-4 underline decoration-4 uppercase italic">Editor / 題目建立</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase">Category / 類別</label>
+                                        <input value={newItem.category} placeholder="如: 影像診斷" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#00A2E8] outline-none font-bold" onChange={e=>setNewItem({...newItem, category: e.target.value})} />
                                     </div>
-                                ))}
-                            </div>
-                            <button className="w-full bg-[#E60012] text-white py-5 rounded-3xl font-black text-xl btn-push shadow-lg uppercase">{editingId ? 'Update Content' : 'Add New Data'}</button>
-                            {editingId && <button type="button" onClick={() => {setEditingId(null); setNewItem({ name:'', image:'', info:'', category:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });}} className="w-full mt-2 text-slate-400 font-bold text-xs hover:underline">取消編輯</button>}
-                        </form>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase">Name / 名稱</label>
+                                        <input value={newItem.name} placeholder="設備名稱" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold" onChange={e=>setNewItem({...newItem, name: e.target.value})} />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter text-left block">Image / 圖片網址 (自動轉換 Github 連結)</label>
+                                    <input value={newItem.image} placeholder="GITHUB IMAGE URL" className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none font-bold text-xs" onChange={e=>handleGit(e.target.value)} />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase text-left block">Description / 設備介紹</label>
+                                    <textarea value={newItem.info} placeholder="設備介紹內容..." className="w-full p-4 bg-[#F0F0F0] border-4 border-transparent rounded-2xl focus:border-[#E60012] outline-none h-24 font-bold" onChange={e=>setNewItem({...newItem, info: e.target.value})} />
+                                </div>
+                                <div className="p-5 bg-[#2D2D2D] rounded-3xl text-white">
+                                    <p className="font-black text-xs mb-3 text-nintendo-yellow uppercase tracking-widest text-left">Quiz / 測驗設定</p>
+                                    <input value={newItem.question} className="w-full p-3 mb-4 rounded-xl border-none bg-white/10 outline-none focus:bg-white/20 font-bold" onChange={e=>setNewItem({...newItem, question: e.target.value})} />
+                                    {newItem.options.map((o,i)=>(
+                                        <div key={i} className="flex gap-3 mb-3 items-center">
+                                            <input type="radio" checked={newItem.correct===i} onChange={()=>setNewItem({...newItem, correct: i})} className="accent-nintendo-yellow" />
+                                            <input value={o} className="flex-1 p-3 rounded-xl border-none bg-white/10 outline-none text-sm font-bold" placeholder={`Option ${i+1}`} onChange={e=>{
+                                                const ns = [...newItem.options]; ns[i]=e.target.value; setNewItem({...newItem, options: ns});
+                                            }} />
+                                        </div>
+                                    ))}
+                                </div>
+                                <button className="w-full bg-[#E60012] text-white py-5 rounded-3xl font-black text-xl btn-push shadow-lg uppercase tracking-widest text-center italic">
+                                    {editingId ? 'Save Update' : 'Add New Data'}
+                                </button>
+                                {editingId && (
+                                    <button type="button" onClick={() => {setEditingId(null); setNewItem({ name:'', image:'', info:'', category:'', question:'請問下列哪一項是關於 {name} 的正確描述？', options:['','','',''], correct:0 });}} className="w-full mt-2 text-slate-400 font-bold text-xs hover:underline text-center">
+                                        取消編輯
+                                    </button>
+                                )}
+                            </form>
+                        </div>
 
-                        {/* 右側分群列表 */}
-                        <div className="space-y-8 max-h-screen overflow-y-auto pr-4 pb-20">
-                            <h2 className="font-black text-xl text-[#2D2D2D] sticky top-0 bg-[#F0F0F0] py-2 z-10">歷史題庫清單 ({cardsData.length})</h2>
-                            {Object.keys(groupedData).sort().map(cat => (
-                                <div key={cat} className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <span className="nintendo-blue text-white px-4 py-1 rounded-lg font-black text-sm uppercase italic tracking-tighter shadow-sm">{cat}</span>
-                                        <div className="flex-1 h-1 bg-slate-200 rounded-full"></div>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        {groupedData[cat].map(item => (
-                                            <div key={item.id} className="p-4 bg-white border-4 border-[#2D2D2D] rounded-3xl flex items-center gap-4 shadow-md group hover:bg-[#F0F0F0] transition-colors">
-                                                <img src={item.image} className="w-16 h-16 rounded-2xl object-cover border-4 border-[#2D2D2D] flex-shrink-0" onError={e=>e.target.src=PLACEHOLDER_IMG} />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-black text-lg italic text-[#2D2D2D] truncate uppercase tracking-tighter">{item.name}</p>
-                                                    <div className="flex gap-3 mt-2">
-                                                        <button onClick={()=>{setEditingId(item.id); setNewItem({...item})}} className="bg-nintendo-dark text-white text-[10px] font-black px-3 py-1 rounded-full hover:bg-slate-600 transition-colors uppercase italic">Edit</button>
-                                                        <button onClick={()=> {if(confirm('Delete?')) colRef.doc(item.id).delete()}} className="bg-[#E60012] text-white text-[10px] font-black px-3 py-1 rounded-full hover:bg-red-700 transition-colors uppercase italic">Del</button>
-                                                    </div>
+                        {/* 右側題庫分頁清單 (佔 7 格) */}
+                        <div className="lg:col-span-7 space-y-6">
+                            <div className="bg-white p-6 rounded-3xl border-4 border-[#2D2D2D] shadow-lg">
+                                <h2 className="font-black text-xl text-[#2D2D2D] mb-4 flex items-center justify-between uppercase italic">
+                                    <span>Inventory / 歷史題庫</span>
+                                    <span className="bg-[#F0F0F0] px-3 py-1 rounded-full text-sm not-italic font-mono">{cardsData.length} Items</span>
+                                </h2>
+                                
+                                {/* 類別切換頁籤 */}
+                                <div className="flex flex-wrap gap-2 mb-6 border-b-4 border-[#F0F0F0] pb-4">
+                                    {categories.map(cat => (
+                                        <button 
+                                            key={cat}
+                                            onClick={() => setActiveCategory(cat)}
+                                            className={`px-4 py-2 rounded-xl font-black text-xs transition-all uppercase italic tracking-tighter border-b-4 ${
+                                                activeCategory === cat 
+                                                ? 'bg-[#00A2E8] text-white border-black/20 translate-y-0.5' 
+                                                : 'bg-[#F0F0F0] text-slate-400 border-transparent hover:bg-slate-200'
+                                            }`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* 設備清單 (依照筆畫數排序) */}
+                                <div className="space-y-4 max-h-[1000px] overflow-y-auto pr-2 custom-scroll">
+                                    {filteredAndSortedData.map(item => (
+                                        <div key={item.id} className="p-4 bg-[#F9F9F9] border-4 border-[#2D2D2D] rounded-[1.5rem] flex items-center gap-5 shadow-sm group hover:border-[#00A2E8] transition-all">
+                                            <img 
+                                                src={item.image} 
+                                                className="w-20 h-20 rounded-2xl object-cover border-4 border-[#2D2D2D] bg-white flex-shrink-0" 
+                                                onError={e=>e.target.src=PLACEHOLDER_IMG} 
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <span className="text-[10px] font-black text-[#00A2E8] uppercase tracking-tighter italic">
+                                                    {item.category || '未分類'}
+                                                </span>
+                                                <p className="font-black text-xl italic text-[#2D2D2D] truncate uppercase tracking-tighter">
+                                                    {item.name}
+                                                </p>
+                                                <div className="flex gap-3 mt-3">
+                                                    {/* 強化後的編輯按鈕 - 任天堂藍 */}
+                                                    <button 
+                                                        onClick={()=>{setEditingId(item.id); setNewItem({...item}); window.scrollTo({top: 0, behavior: 'smooth'});}} 
+                                                        className="bg-[#00A2E8] text-white text-xs font-black px-5 py-2 rounded-full border-b-4 border-black/20 hover:bg-[#0081B9] transition-colors uppercase italic btn-push"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    {/* 刪除按鈕 - 任天堂紅 */}
+                                                    <button 
+                                                        onClick={()=> {if(confirm(`確定刪除 [${item.name}]？`)) colRef.doc(item.id).delete()}} 
+                                                        className="bg-[#E60012] text-white text-xs font-black px-5 py-2 rounded-full border-b-4 border-black/20 hover:bg-red-700 transition-colors uppercase italic btn-push"
+                                                    >
+                                                        Del
+                                                    </button>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ))}
+                                    
+                                    {filteredAndSortedData.length === 0 && (
+                                        <div className="text-center py-20 bg-slate-50 rounded-[2rem] border-4 border-dashed border-slate-200">
+                                            <Icon name="inbox" size={48} className="text-slate-300 mx-auto mb-2" />
+                                            <p className="text-slate-400 font-black italic uppercase">Inventory Empty In This Category</p>
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
-                            {cardsData.length === 0 && (
-                                <div className="text-center py-20 bg-white/50 rounded-[3rem] border-4 border-dashed border-slate-300">
-                                    <Icon name="inbox" size={48} className="text-slate-300 mx-auto mb-2" />
-                                    <p className="text-slate-400 font-black italic uppercase">Inventory Empty</p>
-                                </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -446,6 +499,10 @@
             const [flipCount, setFlipCount] = useState(0);
             const [quizStartTime, setQuizStartTime] = useState(null);
             const [isPaused, setIsPaused] = useState(false);
+
+            const [gameState, setGameState] = useState({ cards: [], flipped: [], matched: [], currentMatchInfo: null, matchedCardsData: [] });
+            const [quizState, setQuizState] = useState({ questions: [], currentIndex: 0, score: 0, results: [] });
+            const [finalScore, setFinalScore] = useState(0);
 
             useEffect(() => {
                 const init = async () => {
@@ -568,9 +625,6 @@
                     } catch (e) { console.error("Leaderboard Save Error", e); }
                 }
             };
-
-            const [gameState, setGameState] = useState({ cards: [], flipped: [], matched: [], currentMatchInfo: null, matchedCardsData: [] });
-            const [quizState, setQuizState] = useState({ questions: [], currentIndex: 0, score: 0, results: [] });
 
             return (
                 <div className="min-h-screen overflow-x-hidden">
